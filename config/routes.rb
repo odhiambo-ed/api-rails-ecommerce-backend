@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :customers
   # resources :categories
   resources :sizes
   resources :images

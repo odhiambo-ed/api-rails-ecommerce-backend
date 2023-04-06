@@ -1,4 +1,5 @@
 class ColorsController < ApplicationController
+  before_action :authenticate_user!, except: [:index]
   before_action :set_color, only: %i[ show update destroy ]
 
   # GET /colors
