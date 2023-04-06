@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :categories
+  # resources :categories
   resources :sizes
   resources :images
   resources :colors
@@ -9,4 +9,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
+
+  resources :categories do
+    resources :products, only: [:create, :destroy]
+  end
 end
