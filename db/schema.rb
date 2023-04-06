@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_06_101449) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_06_110611) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "colors", force: :cascade do |t|
+    t.string "name"
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_colors_on_product_id"
+  end
 
   create_table "customers", force: :cascade do |t|
     t.string "first_name"
@@ -42,4 +50,5 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_06_101449) do
     t.boolean "in_wishlist", default: false
   end
 
+  add_foreign_key "colors", "products"
 end
