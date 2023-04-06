@@ -8,7 +8,7 @@ class CreateProducts < ActiveRecord::Migration[7.0]
       t.integer :original_price
       t.integer :selling_price
       t.integer :rating
-      t.boolean :in_stock
+      t.boolean :in_stock, :default => true
 
       t.timestamps
     end
