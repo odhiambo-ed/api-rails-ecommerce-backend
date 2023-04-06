@@ -3,4 +3,5 @@ class Product < ApplicationRecord
     has_many :colors
     has_many :images
     has_many :sizes
+    belongs_to :category
 end
