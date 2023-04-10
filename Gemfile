@@ -50,3 +50,5 @@ gem 'devise'
 
 gem 'faker'
 
+gem 'jwt'
+
