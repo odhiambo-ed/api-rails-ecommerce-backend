@@ -1,53 +1,42 @@
+require 'securerandom'
+
 class Api::V1::CustomersController < ApplicationController
-  before_action :authenticate_customer!
-  before_action :check_admin, only: [:index, :destroy]
-  before_action :set_customer, only: %i[ show update destroy ]
+  # before_action :authenticate_customer!
+  # before_action :check_admin, only: [:index, :destroy]
 
-  # GET /customers
   def index
-    @customers = Customer.all
-
-    render json: @customers
-  end
-
-  # GET /customers/1
-  def show
+    @customer = Customer.all
     render json: @customer
   end
 
-  # POST /customers
   def create
     @customer = Customer.new(customer_params)
-
     if @customer.save
-      render json: @customer, status: :created, location: @customer
+      token = generate_token(@customer.id)
+      render json: { success: true, message: 'Customer created successfully', customer: @customer, token: token }, status: :created
     else
-      render json: @customer.errors, status: :unprocessable_entity
+      render json: { error: 'Failed to create customer' }, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /customers/1
-  def update
-    if @customer.update(customer_params)
-      render json: @customer
+  def login
+    customer = Customer.find_by(email: params[:email])
+    if customer && customer.authenticate(params[:password])
+      token = customer.generate_token
+      render json: { success: true, message: 'Logged in successfully', customer: customer, token: token }, status: :ok
     else
-      render json: @customer.errors, status: :unprocessable_entity
+      render json: { error: 'Invalid email or password' }, status: :unauthorized
     end
-  end
-
-  # DELETE /customers/1
-  def destroy
-    @customer.destroy
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_customer
-      @customer = Customer.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def customer_params
-      params.require(:customer).permit(:first_name, :second_name)
-    end
+  def generate_token(customer_id)
+    payload = { customer_id: customer_id }
+    JWT.encode(payload, 'secret_key')
+  end
+
+  def customer_params
+    params.permit(:first_name, :second_name, :email, :password)
+  end
 end
