@@ -1,10 +1,12 @@
 class Api::V1::ColorsController < ApplicationController
-  before_action :authenticate_user!, except: [:index]
+  before_action :authenticate_customer!, except: [:index, :show]
   before_action :set_color, only: %i[ show update destroy ]
+  before_action :set_product, only: [:create, :index]
+  before_action :check_admin, only: [:create, :update, :destroy]
 
   # GET /colors
   def index
-    @colors = Color.all
+    @colors = @product.colors.all
 
     render json: @colors
   end
@@ -16,7 +18,7 @@ class Api::V1::ColorsController < ApplicationController
 
   # POST /colors
   def create
-    @color = Color.new(color_params)
+    @color = @product.colors.build(color_params)
 
     if @color.save
       render json: @color, status: :created, location: @color
@@ -43,6 +45,10 @@ class Api::V1::ColorsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_color
       @color = Color.find(params[:id])
+    end
+
+    def set_product
+      @product = Product.find(params[:product_id])
     end
 
     # Only allow a list of trusted parameters through.

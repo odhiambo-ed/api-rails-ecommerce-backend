@@ -1,31 +1,26 @@
 class Api::V1::ProductsController < ApplicationController
-  before_action :authenticate_user!, except: [:index]
-  before_action :set_product, only: %i[ show update destroy ]
+  before_action :authenticate_customer!, except: [:index, :show]
+  before_action :set_product, only: [:show, :update, :destroy]
+  before_action :check_admin, only: [:create, :update, :destroy]
 
-  # GET /products
   def index
     @products = Product.all
-
-    render json: @products
+    render json: @products, include: [:category, :colors, :images, :sizes]
   end
 
-  # GET /products/1
   def show
-    render json: @product
+    render json: @product, include: [:category, :colors, :images, :sizes]
   end
 
-  # POST /products
   def create
     @product = Product.new(product_params)
-
     if @product.save
-      render json: @product, status: :created, location: @product
+      render json: @product, status: :created
     else
       render json: @product.errors, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /products/1
   def update
     if @product.update(product_params)
       render json: @product
@@ -34,19 +29,17 @@ class Api::V1::ProductsController < ApplicationController
     end
   end
 
-  # DELETE /products/1
   def destroy
     @product.destroy
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_product
-      @product = Product.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def product_params
-      params.require(:product).permit(:name, :image, :description, :category, :original_price, :selling_price, :rating, :in_stock)
-    end
+  def set_product
+    @product = Product.find(params[:id])
+  end
+
+  def product_params
+    params.require(:product).permit(:name, :image, :description, :original_price, :selling_price, :rating, :in_stock, :in_wishlist, :recommended, :category_id)
+  end
 end

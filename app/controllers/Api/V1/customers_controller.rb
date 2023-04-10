@@ -1,5 +1,6 @@
 class Api::V1::CustomersController < ApplicationController
-  before_action :authenticate_customer!, except: [:new, :create]
+  before_action :authenticate_customer!
+  before_action :check_admin, only: [:index, :destroy]
   before_action :set_customer, only: %i[ show update destroy ]
 
   # GET /customers

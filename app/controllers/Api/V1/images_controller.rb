@@ -1,11 +1,12 @@
 class Api::V1::ImagesController < ApplicationController
-  before_action :authenticate_user!, except: [:index]
-  before_action :set_image, only: %i[ show update destroy ]
+  before_action :authenticate_customer!, except: [:index, :show]
+  before_action :set_product, only: [:create, :index]
+  before_action :set_image, only: [:show, :update, :destroy]
+  before_action :check_admin, except: [:create, :update, :destroy]
 
-  # GET /images
+  # GET /products/:product_id/images
   def index
-    @images = Image.all
-
+    @images = @product.images.all
     render json: @images
   end
 
@@ -14,12 +15,12 @@ class Api::V1::ImagesController < ApplicationController
     render json: @image
   end
 
-  # POST /images
+  # POST /products/:product_id/images
   def create
-    @image = Image.new(image_params)
+    @image = @product.images.build(image_params)
 
     if @image.save
-      render json: @image, status: :created, location: @image
+      render json: @image, status: :created
     else
       render json: @image.errors, status: :unprocessable_entity
     end
@@ -37,16 +38,22 @@ class Api::V1::ImagesController < ApplicationController
   # DELETE /images/1
   def destroy
     @image.destroy
+    head :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_image
-      @image = Image.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def image_params
-      params.require(:image).permit(:name, :url, :product_id)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_image
+    @image = Image.find(params[:id])
+  end
+
+  def set_product
+    @product = Product.find(params[:product_id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def image_params
+    params.require(:image).permit(:name, :url)
+  end
 end

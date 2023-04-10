@@ -1,6 +1,7 @@
 class Api::V1::CategoriesController < ApplicationController
-   before_action :authenticate_user!, except: [:index, :show]
-   
+   before_action :authenticate_customer!, except: [:index, :show]
+   before_action :check_admin, only: [:create, :update, :destroy]
+
    def index
     categories = Category.all.includes(:products)
     render json: categories, include: :products
@@ -39,11 +40,5 @@ class Api::V1::CategoriesController < ApplicationController
 
   def category_params
     params.require(:category).permit(:name, :description)
-  end
-
-  def authenticate_user!
-    unless current_user
-      render json: { error: "You must be logged in to access this resource." }, status: :unauthorized
-    end
   end
 end

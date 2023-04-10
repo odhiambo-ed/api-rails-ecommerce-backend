@@ -1,11 +1,12 @@
 class Api::V1::SizesController < ApplicationController
-  before_action :authenticate_user!, except: [:index]
+  before_action :authenticate_customer!, except: [:index, :show]
+  before_action :set_product, only: [:create, :index]
   before_action :set_size, only: %i[ show update destroy ]
+  before_action :check_admin, only: [:create, :update, :destroy]
 
   # GET /sizes
   def index
-    @sizes = Size.all
-
+    @sizes = @product.sizes.all
     render json: @sizes
   end
 
@@ -16,7 +17,7 @@ class Api::V1::SizesController < ApplicationController
 
   # POST /sizes
   def create
-    @size = Size.new(size_params)
+    @size = product.sizes.build(size_params)
 
     if @size.save
       render json: @size, status: :created, location: @size
@@ -43,6 +44,10 @@ class Api::V1::SizesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_size
       @size = Size.find(params[:id])
+    end
+
+    def set_product
+      @product = Product.find(params[:product_id])
     end
 
     # Only allow a list of trusted parameters through.

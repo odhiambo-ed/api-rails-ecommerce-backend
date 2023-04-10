@@ -1,4 +1,4 @@
-class Api::V1::ApplicationController < ActionController
+class ApplicationController < ActionController::API
     # before_action :check_admin
 
   private
