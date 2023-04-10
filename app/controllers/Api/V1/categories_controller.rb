@@ -1,52 +1,49 @@
 class Api::V1::CategoriesController < ApplicationController
-  before_action :authenticate_user!, except: [:index]
-  before_action :set_category, only: %i[ show update destroy ]
-
-  # GET /categories
-  def index
-    @categories = Category.all
-
-    render json: @categories
+   before_action :authenticate_user!, except: [:index, :show]
+   
+   def index
+    categories = Category.all.includes(:products)
+    render json: categories, include: :products
   end
 
-  # GET /categories/1
   def show
-    render json: @category
+    category = Category.find(params[:id])
+    render json: category, include: :products
   end
 
-  # POST /categories
   def create
-    @category = Category.new(category_params)
-
-    if @category.save
-      render json: @category, status: :created, location: @category
+    category = Category.new(category_params)
+    if category.save
+      render json: category, status: :created
     else
-      render json: @category.errors, status: :unprocessable_entity
+      render json: { errors: category.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /categories/1
   def update
-    if @category.update(category_params)
-      render json: @category
+    category = Category.find(params[:id])
+    if category.update(category_params)
+      render json: category, status: :ok
     else
-      render json: @category.errors, status: :unprocessable_entity
+      render json: { errors: category.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
-  # DELETE /categories/1
   def destroy
-    @category.destroy
+    category = Category.find(params[:id])
+    category.destroy
+    head :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_category
-      @category = Category.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def category_params
-      params.require(:category).permit(:name, :description)
+  def category_params
+    params.require(:category).permit(:name, :description)
+  end
+
+  def authenticate_user!
+    unless current_user
+      render json: { error: "You must be logged in to access this resource." }, status: :unauthorized
     end
+  end
 end
