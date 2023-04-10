@@ -1,4 +1,4 @@
-class SizesController < ApplicationController
+class Api::V1::SizesController < ApplicationController
   before_action :authenticate_user!, except: [:index]
   before_action :set_size, only: %i[ show update destroy ]
 

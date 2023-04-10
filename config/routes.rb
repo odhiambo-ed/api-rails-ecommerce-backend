@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  devise_for :customers
   # resources :categories
   # resources :sizes
   # resources :images
@@ -10,20 +9,24 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-
-  resources :categories, only: [:index, :show] do
-    resources :products, only: [:index, :show]
+  namespace :api do
+    namespace :v1 do
+      devise_for :customers
+      resources :categories, only: [:index, :show] do
+        resources :products, only: [:index, :show]
+      end
+      
+      resources :products, only: [] do
+        resources :colors, only: [:index, :show]
+        resources :images, only: [:index, :show]
+        resources :sizes, only: [:index, :show]
+      end
+      
+      resources :customers, only: [:index, :show] do
+        resources :products, only: [:index, :show], controller: 'customers/products'
+      end
+      
+      resources :customers_products, only: [:index, :show]
+    end
   end
-  
-  resources :products, only: [] do
-    resources :colors, only: [:index, :show]
-    resources :images, only: [:index, :show]
-    resources :sizes, only: [:index, :show]
-  end
-  
-  resources :customers, only: [:index, :show] do
-    resources :products, only: [:index, :show], controller: 'customers/products'
-  end
-  
-  resources :customers_products, only: [:index, :show]
 end
