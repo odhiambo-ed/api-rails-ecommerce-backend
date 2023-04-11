@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       post 'signup', to: 'customers#create'
       post 'login', to: 'customers#login'
+      delete 'signout', to: 'customers#signout'
       # devise_for :customers
       resources :categories, only: [:index, :show] do
         resources :products, only: [:index, :show]
