@@ -20,14 +20,23 @@ class Api::V1::CustomersController < ApplicationController
   end
 
   def login
-    customer = Customer.find_by(email: params[:email])
-    if customer && customer.authenticate(params[:password])
-      token = customer.generate_token
-      render json: { success: true, message: 'Logged in successfully', customer: customer, token: token }, status: :ok
+    customer = Customer.find_for_authentication(email: params[:email])
+    if customer&.valid_password?(params[:password])
+      render json: { token: customer.generate_jwt }
     else
       render json: { error: 'Invalid email or password' }, status: :unauthorized
     end
   end
+
+  def signout
+    if @current_user.nil?
+      render json: { error: 'Not authenticated' }, status: :unauthorized
+      return
+    end
+    @current_user.update(authentication_token: nil)
+    render json: { success: true, message: 'Signed out successfully' }, status: :ok
+  end
+
 
   private
 
@@ -37,6 +46,6 @@ class Api::V1::CustomersController < ApplicationController
   end
 
   def customer_params
-    params.permit(:first_name, :second_name, :email, :password)
+    params.permit(:first_name, :second_name, :email, :password, :encrypted_password)
   end
 end
