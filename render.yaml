@@ -1,0 +1,19 @@
+databases:
+  - name: postgres
+    ipAllowList: []
+    databaseName: rails_fashion_ecommerce_backendend__production
+    user: rails_fashion_ecommerce_backendend_
+
+services:
+  - type: web
+    name: rails_fashion_ecommerce_backendend_
+    env: ruby
+    buildCommand: "./render-build.sh"
+    startCommand: "bundle exec rails s"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: postgres
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
