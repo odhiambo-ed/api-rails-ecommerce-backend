@@ -82,7 +82,6 @@ test:
 #
 production:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
   database: rails_fashion_ecommerce_backendend__production
   username: rails_fashion_ecommerce_backendend_
   password: <%= ENV["RAILS_FASHION_ECOMMERCE_BACKENDEND__DATABASE_PASSWORD"] %>
